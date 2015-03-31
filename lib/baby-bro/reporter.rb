@@ -24,22 +24,22 @@ module BabyBro
         end
       end
     end
-    
+
     def run
       if @config.brief && @date
         $stdout.puts
-        $stdout.puts "#{@date.strftime("%Y-%m-%d")}:" 
+        $stdout.puts "#{@date.strftime("%Y-%m-%d")}:"
       end
       @longest_project_name = @projects.inject(0){|max,p| p.name.size>max ? p.name.size : max}
       @projects.each do |project|
         print_project_report( project, @date )
       end
     end
-    
+
     private
       def process_reporting_config( config )
       end
-      
+
       def print_project_report( project, report_date=nil )
         sessions = project.sessions
         return if @config.brief && sessions.empty?
@@ -65,7 +65,7 @@ module BabyBro
               end
               has_sessions_for_date = true
               $stdout.print "    Total:" unless @config.brief && report_date
-              $stdout.print "  #{Session.duration_in_english(sessions.inject(0){|sum,n| sum = sum+n.duration})}"
+              $stdout.puts "  #{Session.duration_in_english(sessions.inject(0){|sum,n| sum = sum+n.duration})}"
             end
             $stdout.puts has_sessions_for_date ? "" : "     no activity"
             $stdout.puts "Grand Total: #{Session.duration_in_english(cumulative_time)}" unless @config.brief
