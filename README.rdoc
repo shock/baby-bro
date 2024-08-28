@@ -1,6 +1,6 @@
 = baby-bro
 
-* http://github.com/capitalthought/baby-bro
+* http://github.com/shock/baby-bro
 
 == DESCRIPTION:
 
