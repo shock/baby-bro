@@ -6,7 +6,7 @@ module BabyBro
     attr_accessor :start_time, :start_date
 
     def self.create_session( time, dirname )
-      session = Session.new( time, dirname )
+      Session.new( time, dirname )
     end
 
     def self.load_session( session_filename )

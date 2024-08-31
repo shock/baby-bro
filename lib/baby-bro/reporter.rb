@@ -98,7 +98,7 @@ module BabyBro
       end
       @longest_project_name = @projects.inject(0){|max,p| p.name.size>max ? p.name.size : max}
       @total_time = 0
-      @projects.each do |project|
+      @projects.sort_by{|p| p.last_activity}.each do |project|
         @total_time += print_project_report( project, @date )
       end
       puts "\n--------------------------------------------------------------------------------"

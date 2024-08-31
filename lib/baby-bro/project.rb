@@ -23,7 +23,7 @@ module BabyBro
     end
 
     def last_checked
-      file_timestamp self.last_checked_file
+      file_timestamp(self.last_checked_file)
     end
 
     def update_last_checked ( time=Time.now )
@@ -36,17 +36,27 @@ module BabyBro
     end
 
     def find_active_session
-      session_files = find_recent_files(self.sessions_dir, self.config.monitor.idle_interval)
-      session_files = session_files.reject{|e| e.strip!;e.nil? || e=="" || e == self.sessions_dir}
-      if session_files.length > 1
-        session_files.sort!
+      recent_session_files = find_recent_files(self.sessions_dir, self.config.monitor.idle_interval)
+      recent_session_files = recent_session_files.reject{|e| e.strip!;e.nil? || e=="" || e == self.sessions_dir}
+      if recent_session_files.length > 1
+        recent_session_files.sort!
       end
-      Session.load_session(session_files.last) if session_files.any?
+      Session.load_session(recent_session_files.last) if recent_session_files.any?
+    end
+
+    def session_files
+      find_files( self.sessions_dir ).sort
     end
 
     def sessions
-      session_files = find_files( self.sessions_dir )
-      session_files.sort.map{|f| Session.load_session(f)}
+      session_files.map{|f| Session.load_session(f)}
+    end
+
+    def last_activity
+      sf = session_files
+      # create a Date from epoch 0 if there are no sessions
+      return new(1970,1,1) if sf.last.nil?
+      Session.load_session(sf.last).last_activity
     end
 
     def log_activity
