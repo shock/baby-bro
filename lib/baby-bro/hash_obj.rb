@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 #
 # HashObj
-# v 2.0
+# v 2.0.1
 # 08/31/2024
 #
 # Author: Bill Doughty
-#
 #
 # Like Hashie::Mash but works like you want - ie. it doesn't dup value objects, it stores the originals
 # Also works like HashWithIndifferentAccess
@@ -17,7 +16,7 @@ class HashObj < Hash
   end
 
   def [](key)
-    return super(key) if key.is_a?(Numeric)
+    return super(key) if !key.is_a?(String) && !key.is_a?(Symbol)
     if key?(key.to_s)
       return super(key.to_s)
     elsif key?(key.to_sym)
@@ -33,10 +32,11 @@ class HashObj < Hash
   end
 
   def delete(key)
-    return super(key) if key.is_a?(Numeric)
     if key?(key.to_s)
       return super(key.to_s)
     elsif key?(key.to_sym)
+      return super(key)
+    else
       return super(key.to_sym)
     end
 
@@ -73,7 +73,7 @@ class HashObj < Hash
       if v.is_a?(Array)
         v.map! { |e| e.is_a?(Hash) ? self.class.new(e) : e }
       end
-      if k.is_a?(Numeric)
+      if !k.is_a?(String) && !k.is_a?(Symbol)
         self[k] = v
       else
         send("#{k}=", v)
@@ -84,7 +84,31 @@ class HashObj < Hash
 end
 
 if $PROGRAM_NAME == __FILE__
-  obj = HashObj.new(id: -1)
-  raise 'failure' unless obj.id == -1
+  require 'date'
   puts "Ruby version: #{RUBY_VERSION} (#{RUBY_PLATFORM})"
+  puts "Testing HashObj.."
+  obj = HashObj.new(id: 1)
+  raise 'failure' unless obj.id == 1
+  obj = HashObj.new('id' => -1)
+  raise 'failure' unless obj.id == -1
+  obj = HashObj.new({1 => 2})
+  raise 'failure' unless obj[1] == 2
+  date = Date.new(2023,1,1)
+  obj = HashObj.new(date => 'date')
+  raise 'failure' unless obj[date] == 'date'
+  obj = HashObj.new
+  obj.one = 1
+  raise 'failure' unless obj[:one] == 1
+  raise 'failure' unless obj['one'] == 1
+  obj = HashObj.new
+  obj[:one] = 1
+  raise 'failure' unless obj['one'] == 1
+  obj = HashObj.new
+  obj['one'] = 1
+  raise 'failure' unless obj[:one] == 1
+  obj = HashObj.new
+  obj.one = 1
+  raise 'failure' unless obj['one'] == 1
+  raise 'failure' unless obj[:one] == 1
+  puts "All tests passed"
 end

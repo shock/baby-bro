@@ -60,7 +60,7 @@ module BabyBro
       end
       time << "#{time_duration.to_i}s"
       breakdown = time.join(' ')
-      output = "#{(duration/1.hour).to_i < 10 ? " " : ""}#{"%.2f" % (duration/1.hour)} hours or #{breakdown}"
+      "#{(duration/1.hour).to_i < 10 ? " " : ""}#{"%.2f" % (duration/1.hour)} hours or #{breakdown}"
     end
 
     def <=> b

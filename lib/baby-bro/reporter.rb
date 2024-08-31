@@ -11,6 +11,7 @@ module BabyBro
       @date = date
       @cumulative_time = 0
       @sessions = sessions
+      process_sessions
     end
 
     def process_sessions
@@ -41,8 +42,11 @@ module BabyBro
       if sessions.any?
         sessions_by_date = sessions.group_by(&:start_date)
 
-        if report_date && sessions_by_date[report_date]
-          @reports_by_date[report_date] = ProjectDateReport.new( @project, report_date, sessions_by_date[report_date] )
+        if report_date
+          if sessions_by_date[report_date]
+            @reports_by_date[report_date] = ProjectDateReport.new( @project, sessions_by_date[report_date], report_date )
+            @cumulative_time = @reports_by_date[report_date].cumulative_time
+          end
           return
         end
 
@@ -62,8 +66,9 @@ module BabyBro
     attr :cumulative_time, :project_reports, :projects
     def initialize( projects, report_date= nil )
       @projects = projects
-      @project_reports = @projects.map{|p| ProjectReport.new(p, report_date)}
-      @cumulative_time = @project_reports.inject(0){|sum,n| sum = sum+n.cumulative_time}
+      project_reports = @projects.map{|p| ProjectReport.new(p, report_date)}
+      @cumulative_time = project_reports.inject(0){|sum,n| sum = sum+n.cumulative_time}
+      @project_reports = project_reports
     end
   end
 
@@ -103,6 +108,7 @@ module BabyBro
       end
       puts "\n--------------------------------------------------------------------------------"
       puts "Total Time: #{Session.duration_in_english(@total_time)}"
+      puts "Total Time: #{Session.duration_in_english(@report.cumulative_time)}"
       puts
     end
 

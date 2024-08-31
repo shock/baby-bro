@@ -55,7 +55,7 @@ module BabyBro
     def last_activity
       sf = session_files
       # create a Date from epoch 0 if there are no sessions
-      return new(1970,1,1) if sf.last.nil?
+      return Time.at(0) if sf.last.nil?
       Session.load_session(sf.last).last_activity
     end
 
