@@ -112,6 +112,10 @@ END
           @options[:brief] = true
         end
 
+        opts.on('-t', '--test', :NONE, "Test mode.  Not for production use.") do
+          @options[:test] = true
+        end
+
         opts.on_tail("-?", "-h", "--help", "Show this message") do
           puts opts
           exit

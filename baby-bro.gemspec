@@ -36,7 +36,7 @@ Gem::Specification.new do |s|
     "lib/baby-bro/base_config.rb",
     "lib/baby-bro/exec.rb",
     "lib/baby-bro/files.rb",
-    "lib/baby-bro/hash_object.rb",
+    "lib/baby-bro/hash_obj.rb",
     "lib/baby-bro/monitor.rb",
     "lib/baby-bro/monitor_config.rb",
     "lib/baby-bro/project.rb",

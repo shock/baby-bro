@@ -1,2 +1,4 @@
 pkg
 *.code-workspace
+*.swp
+.DS_Store

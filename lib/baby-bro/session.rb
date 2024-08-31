@@ -6,7 +6,7 @@ module BabyBro
     attr_accessor :start_time, :start_date
 
     def self.create_session( time, dirname )
-      session = Session.new( time, dirname )
+      Session.new( time, dirname )
     end
 
     def self.load_session( session_filename )
@@ -35,6 +35,10 @@ module BabyBro
       duration < 0 ? 0 : duration
     end
 
+    def end_time
+      @start_time + self.duration
+    end
+
     def duration_in_english
       Session.duration_in_english( self.duration )
     end
@@ -60,7 +64,7 @@ module BabyBro
       end
       time << "#{time_duration.to_i}s"
       breakdown = time.join(' ')
-      output = "#{(duration/1.hour).to_i < 10 ? " " : ""}#{"%.2f" % (duration/1.hour)} hours or #{breakdown}"
+      "#{(duration/1.hour).to_i < 10 ? " " : ""}#{"%.2f" % (duration/1.hour)} hours or #{breakdown}"
     end
 
     def <=> b
