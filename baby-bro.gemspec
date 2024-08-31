@@ -42,7 +42,7 @@ Gem::Specification.new do |s|
     "lib/baby-bro/project.rb",
     "lib/baby-bro/reporter.rb",
     "lib/baby-bro/session.rb",
-    "lib/extensions/fixnum.rb",
+    "lib/extensions/integer.rb",
     "script/console",
     "script/destroy",
     "script/generate",
@@ -68,4 +68,3 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<rspec>, [">= 1.3.1"])
   end
 end
-
