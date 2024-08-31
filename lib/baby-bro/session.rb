@@ -35,6 +35,10 @@ module BabyBro
       duration < 0 ? 0 : duration
     end
 
+    def end_time
+      @start_time + self.duration
+    end
+
     def duration_in_english
       Session.duration_in_english( self.duration )
     end

@@ -109,100 +109,57 @@ module BabyBro
       @longest_project_name = @projects.inject(0){|max,p| p.name.size>max ? p.name.size : max}
       @total_time = 0
       @projects.sort_by{|p| p.last_activity}.each do |project|
-        if @config.test
-          test_project_report( @report.reports_by_project[project], @date )
-        else
-          @total_time += print_project_report( project, @date )
-        end
+        print_project_report( @report.reports_by_project[project], @date )
       end
       puts "\n--------------------------------------------------------------------------------"
-      puts "Total Time: #{Session.duration_in_english(@total_time)}"
       puts "Total Time: #{Session.duration_in_english(@report.cumulative_time)}"
       puts
     end
 
-    def test_project_report( project_report, report_date=nil )
-      project = project_report.project
-      return if @brief && !project_report.is_active?
-
-      if @brief && report_date
-        $stdout.print "  #{project.name}#{" "*(@longest_project_name - project.name.size)}  :"
-      else
-        $stdout.puts
-        $stdout.puts "#{project.name}"
-        $stdout.puts "="*project.name.size
-      end
-
-      if project_report.is_active?
-        reports_by_date = project_report.reports_by_date
-        has_sessions_for_date = false
-        reports_by_date.keys.sort.each do |date|
-          next if report_date && date != report_date
-          sessions = reports_by_date[date].sessions.sort
-          $stdout.puts "  #{date.strftime("%Y-%m-%d")}" unless @brief && report_date
-          sessions.each do |session|
-            $stdout.puts "      #{session.start_time.strftime("%I:%M %p")} - #{session.duration_in_english}" unless @brief
-          end
-          has_sessions_for_date = true
-          $stdout.print "    Total:" unless @brief && report_date
-          sessions_time = project_report.reports_by_date[date].cumulative_time
-          $stdout.puts "  #{Session.duration_in_english(sessions_time)}"
-          $stdout.puts
-        end
-        unless has_sessions_for_date
-          puts "   no activity" if @brief
-          puts
-        end
-        $stdout.puts "  Project Total: #{Session.duration_in_english(project_report.cumulative_time)}" unless @brief
-      else
-        $stdout.puts "  No sessions for this project."
-      end
-
-    end
 
     private
       def process_reporting_config( config )
       end
 
-      def print_project_report( project, report_date=nil )
-        sessions = project.sessions
-        return 0 if @brief && sessions.empty?
+      def print_project_report( project_report, report_date=nil )
+        project = project_report.project
+        return if @brief && !project_report.is_active?
 
         if @brief && report_date
+          $stdout.puts
           $stdout.print "  #{project.name}#{" "*(@longest_project_name - project.name.size)}  :"
         else
           $stdout.puts
           $stdout.puts "#{project.name}"
           $stdout.puts "="*project.name.size
         end
-        cumulative_time = 0
-        if sessions.any?
-          sessions_by_date = sessions.group_by(&:start_date)
+
+        if project_report.is_active?
+          reports_by_date = project_report.reports_by_date
           has_sessions_for_date = false
-          sessions_by_date.keys.sort.each do |date|
+          reports_by_date.keys.sort.each do |date|
             next if report_date && date != report_date
-            sessions = sessions_by_date[date].sort
+            sessions = reports_by_date[date].sessions.sort
             $stdout.puts "  #{date.strftime("%Y-%m-%d")}" unless @brief && report_date
             sessions.each do |session|
-              $stdout.puts "      #{session.start_time.strftime("%I:%M %p")} - #{session.duration_in_english}" unless @brief
-              cumulative_time += session.duration
+              $stdout.puts "      #{session.start_time.strftime("%I:%M %p")} - #{session.end_time.strftime("%I:%M %p")}  ~ #{session.duration_in_english}" unless @brief
             end
             has_sessions_for_date = true
             $stdout.print "    Total:" unless @brief && report_date
-            sessions_time = sessions.inject(0){|sum,n| sum = sum+n.duration}
+            sessions_time = project_report.reports_by_date[date].cumulative_time
             $stdout.puts "  #{Session.duration_in_english(sessions_time)}"
-            $stdout.puts
+            $stdout.puts unless @brief
           end
           unless has_sessions_for_date
-            puts "   no activity" if @brief
+            $stdout.print "   no activity" if @brief
             puts
           end
-          $stdout.puts "  Project Total: #{Session.duration_in_english(cumulative_time)}" unless @brief
+          $stdout.puts "  Project Total: #{Session.duration_in_english(project_report.cumulative_time)}" unless @brief
         else
           $stdout.puts "  No sessions for this project."
         end
 
-        cumulative_time
       end
+
   end
 end
