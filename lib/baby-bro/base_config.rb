@@ -16,7 +16,7 @@ module BabyBro
       config[:data][:pid_file] = File.join(@data_directory, ".pid")
       raise "No projects specified" unless @projects
       validate_projects( @projects )
-      puts "Config file #{@config_file} loaded."
+      # puts "Config file #{@config_file} loaded."
       options.merge(config)
     end
 

@@ -23,7 +23,7 @@ module BabyBro
   end
 
   class ProjectReport
-    attr_accessor :project, :cumulative_time, :sessions_by_date, :sessions, :reports_by_date
+    attr_accessor :project, :cumulative_time, :sessions, :reports_by_date
 
     def initialize( project, report_date=nil )
       @project = project
@@ -33,6 +33,8 @@ module BabyBro
       @sessions_by_date = HashObj.new({})
       process_sessions
     end
+
+    def is_active?; return @sessions.any?; end
 
     private
 
@@ -52,8 +54,8 @@ module BabyBro
         end
 
         @sessions_by_date.keys.sort.each do |date|
-          sessions = sessions_by_date[date].sort
-          @reports_by_date[date] = ProjectDateReport.new( @project, date, sessions )
+          sessions = @sessions_by_date[date].sort
+          @reports_by_date[date] = ProjectDateReport.new( @project, sessions, date )
         end
       end
       @cumulative_time = @reports_by_date.values.inject(0){|sum,n| sum = sum+n.cumulative_time}
@@ -121,8 +123,7 @@ module BabyBro
 
     def test_project_report( project_report, report_date=nil )
       project = project_report.project
-      sessions = project_report.sessions
-      return if @brief && sessions.empty?
+      return if @brief && !project_report.is_active?
 
       if @brief && report_date
         $stdout.print "  #{project.name}#{" "*(@longest_project_name - project.name.size)}  :"
@@ -132,12 +133,12 @@ module BabyBro
         $stdout.puts "="*project.name.size
       end
 
-      if sessions.any?
-        sessions_by_date = project_report.sessions_by_date
+      if project_report.is_active?
+        reports_by_date = project_report.reports_by_date
         has_sessions_for_date = false
-        sessions_by_date.keys.sort.each do |date|
+        reports_by_date.keys.sort.each do |date|
           next if report_date && date != report_date
-          sessions = sessions_by_date[date].sort
+          sessions = reports_by_date[date].sessions.sort
           $stdout.puts "  #{date.strftime("%Y-%m-%d")}" unless @brief && report_date
           sessions.each do |session|
             $stdout.puts "      #{session.start_time.strftime("%I:%M %p")} - #{session.duration_in_english}" unless @brief
