@@ -123,7 +123,7 @@ module BabyBro
       end
 
       def load_config( options )
-        @config = HashObject.new( process_base_config( options ), true )
+        @config = HashObj.new( process_base_config( options ) )
         process_monitor_config( @config )
         initialize_database
       end

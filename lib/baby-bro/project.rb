@@ -3,7 +3,7 @@
 end
 
 module BabyBro
-  class Project < HashObject
+  class Project < HashObj
     attr_accessor :config
     include Files
 

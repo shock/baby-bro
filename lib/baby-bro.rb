@@ -8,6 +8,6 @@ module BabyBro
 end
 
 require 'extensions/integer'
-require 'baby-bro/hash_object'
+require 'baby-bro/hash_obj'
 require 'baby-bro/monitor'
 require 'baby-bro/reporter'
