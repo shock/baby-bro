@@ -3,12 +3,76 @@
 end
 
 module BabyBro
+
+  class ProjectDateReport
+    attr :project, :date, :sessions, :cumulative_time
+    def initialize( project, sessions, date )
+      @project = project
+      @date = date
+      @cumulative_time = 0
+      @sessions = sessions
+    end
+
+    def process_sessions
+      @sessions.each do |session|
+        @cumulative_time += session.duration
+      end
+    end
+
+  end
+
+  class ProjectReport
+    attr_accessor :project, :cumulative_time
+
+    def initialize( project, report_date=nil )
+      @project = project
+      @report_date = report_date
+      @cumulative_time = 0
+      @reports_by_date = HashObj.new({})
+      process_sessions
+    end
+
+    private
+
+    def process_sessions
+      sessions = @project.sessions
+      report_date = @report_date
+
+      if sessions.any?
+        sessions_by_date = sessions.group_by(&:start_date)
+
+        if report_date && sessions_by_date[report_date]
+          @reports_by_date[report_date] = ProjectDateReport.new( @project, report_date, sessions_by_date[report_date] )
+          return
+        end
+
+        sessions_by_date.keys.sort.each do |date|
+          sessions = sessions_by_date[date].sort
+          @reports_by_date[date] = ProjectDateReport.new( @project, date, sessions )
+        end
+      end
+
+      @cumulative_time = @reports_by_date.values.inject(0){|sum,n| sum = sum+n.cumulative_time}
+
+    end
+
+  end
+
+  class Report
+    attr :cumulative_time, :project_reports
+    def initialize( projects, report_date= nil )
+      @projects = projects
+      @project_reports = @projects.map{|p| ProjectReport.new(p, report_date)}
+      @cumulative_time = @project_reports.inject(0){|sum,n| sum = sum+n.cumulative_time}
+    end
+  end
+
   class Reporter
     include BaseConfig
     attr_accessor :data_directory, :projects, :config
 
     def initialize( options, args )
-      @config = HashObject.new( process_base_config( options ), true )
+      @config = HashObj.new( process_base_config( options ) )
       process_reporting_config( @config )
       initialize_database
       date_string = args.shift
@@ -23,6 +87,7 @@ module BabyBro
           @date = Date.today - date_string.to_i
         end
       end
+      @report = Report.new( @projects, @date )
     end
 
     def run
@@ -71,8 +136,8 @@ module BabyBro
             $stdout.print "    Total:" unless @config.brief && report_date
             sessions_time = sessions.inject(0){|sum,n| sum = sum+n.duration}
             $stdout.puts "  #{Session.duration_in_english(sessions_time)}"
+            $stdout.puts
           end
-          $stdout.puts has_sessions_for_date ? "" : "     no activity\n"
           $stdout.puts "  Project Total: #{Session.duration_in_english(cumulative_time)}" unless @config.brief
         else
           $stdout.puts "  No sessions for this project."
