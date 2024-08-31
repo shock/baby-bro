@@ -86,4 +86,5 @@ end
 if $PROGRAM_NAME == __FILE__
   obj = HashObj.new(id: -1)
   raise 'failure' unless obj.id == -1
+  puts "Ruby version: #{RUBY_VERSION} (#{RUBY_PLATFORM})"
 end

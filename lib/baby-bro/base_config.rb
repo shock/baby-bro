@@ -3,7 +3,7 @@ module BabyBro
     def self.included( base )
       base.send(:include, Files)
     end
-    
+
     def process_base_config( options )
       @config_file = options[:config_file]
       config = YAML.load( File.open( @config_file ) )
@@ -19,8 +19,8 @@ module BabyBro
       puts "Config file #{@config_file} loaded."
       options.merge(config)
     end
-    
-    
+
+
     def validate_projects( projects )
       projects.each_with_index do |project, i|
         raise "No name given for project #{i}" unless project[:name]
@@ -38,8 +38,8 @@ module BabyBro
       dup_dirs = project_dirs - project_dirs.uniq
       raise "ERROR: Duplicate project name(s) not allowed: #{dup_names.join(", ")}" if dup_names.any?
       raise "ERROR: Duplicate project directories(s) allowed: #{dup_dirs.join(", ")}" if dup_dirs.any?
-    end    
-    
+    end
+
     def initialize_database
       FileUtils.mkdir_p( @data_directory )
       version_file = File.join(@data_directory, '.version')
@@ -50,7 +50,7 @@ module BabyBro
       end
       @projects.map!{|p| Project.new(p, @config)}
     end
-    
+
     def base_config_changed
       if @last_config_update > file_timestamp( @config_file )
         puts "config new"
@@ -59,6 +59,6 @@ module BabyBro
         return false
       end
     end
-    
+
   end
 end

@@ -59,7 +59,7 @@ module BabyBro
   end
 
   class Report
-    attr :cumulative_time, :project_reports
+    attr :cumulative_time, :project_reports, :projects
     def initialize( projects, report_date= nil )
       @projects = projects
       @project_reports = @projects.map{|p| ProjectReport.new(p, report_date)}
@@ -73,6 +73,7 @@ module BabyBro
 
     def initialize( options, args )
       @config = HashObj.new( process_base_config( options ) )
+      @brief = @config.brief
       process_reporting_config( @config )
       initialize_database
       date_string = args.shift
@@ -91,7 +92,7 @@ module BabyBro
     end
 
     def run
-      if @config.brief && @date
+      if @brief && @date
         $stdout.puts
         $stdout.puts "#{@date.strftime("%Y-%m-%d")}:"
       end
@@ -111,9 +112,9 @@ module BabyBro
 
       def print_project_report( project, report_date=nil )
         sessions = project.sessions
-        return 0 if @config.brief && sessions.empty?
+        return 0 if @brief && sessions.empty?
 
-        if @config.brief && report_date
+        if @brief && report_date
           $stdout.print "  #{project.name}#{" "*(@longest_project_name - project.name.size)}  :"
         else
           $stdout.puts
@@ -127,18 +128,22 @@ module BabyBro
           sessions_by_date.keys.sort.each do |date|
             next if report_date && date != report_date
             sessions = sessions_by_date[date].sort
-            $stdout.puts "  #{date.strftime("%Y-%m-%d")}" unless @config.brief && report_date
+            $stdout.puts "  #{date.strftime("%Y-%m-%d")}" unless @brief && report_date
             sessions.each do |session|
-              $stdout.puts "      #{session.start_time.strftime("%I:%M %p")} - #{session.duration_in_english}" unless @config.brief
+              $stdout.puts "      #{session.start_time.strftime("%I:%M %p")} - #{session.duration_in_english}" unless @brief
               cumulative_time += session.duration
             end
             has_sessions_for_date = true
-            $stdout.print "    Total:" unless @config.brief && report_date
+            $stdout.print "    Total:" unless @brief && report_date
             sessions_time = sessions.inject(0){|sum,n| sum = sum+n.duration}
             $stdout.puts "  #{Session.duration_in_english(sessions_time)}"
             $stdout.puts
           end
-          $stdout.puts "  Project Total: #{Session.duration_in_english(cumulative_time)}" unless @config.brief
+          unless has_sessions_for_date
+            puts "   no activity" if @brief
+            puts
+          end
+          $stdout.puts "  Project Total: #{Session.duration_in_english(cumulative_time)}" unless @brief
         else
           $stdout.puts "  No sessions for this project."
         end

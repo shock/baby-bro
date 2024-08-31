@@ -7,11 +7,11 @@ module BabyBro
       file.close
       mtime
     end
-    
+
     def touch_file( filename, time )
       `touch -t #{time.strftime("%Y%m%d%H%M.%S")} #{filename}`
     end
-    
+
     # returns files in the specified directory
     def find_files( directory, pattern='*')
      `find -H '#{directory}' -name "#{pattern}"`.split("\n").reject{|f| f==directory}
