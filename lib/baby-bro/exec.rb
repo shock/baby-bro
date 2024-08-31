@@ -82,8 +82,8 @@ Command is one of the following:
   status - prints the status of the monitor process
   restart - restarts the monitor process (forces re-reading of config file)
   report - prints out time tracking reports
-  
-date_string is an optional argument for the report command and can be a 
+
+date_string is an optional argument for the report command and can be a
 qualified date string, 'today', 'yesterday' or a number representing an
 offset from today's date.
 
@@ -181,7 +181,7 @@ MESSAGE
         exit 1
       end
     end
-    
+
     class Bro < Generic
       # Processes the options set by the command-line arguments.
       #

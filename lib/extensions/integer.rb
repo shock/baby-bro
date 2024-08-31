@@ -1,4 +1,4 @@
-class Fixnum
+class Integer
   def seconds
     self
   end

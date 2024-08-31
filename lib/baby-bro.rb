@@ -7,7 +7,7 @@ module BabyBro
   end
 end
 
-require 'extensions/fixnum'
+require 'extensions/integer'
 require 'baby-bro/hash_object'
 require 'baby-bro/monitor'
 require 'baby-bro/reporter'
