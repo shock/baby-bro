@@ -23,52 +23,55 @@ module BabyBro
   end
 
   class ProjectReport
-    attr_accessor :project, :cumulative_time
+    attr_accessor :project, :cumulative_time, :sessions_by_date, :sessions, :reports_by_date
 
     def initialize( project, report_date=nil )
       @project = project
       @report_date = report_date
       @cumulative_time = 0
       @reports_by_date = HashObj.new({})
+      @sessions_by_date = HashObj.new({})
       process_sessions
     end
 
     private
 
     def process_sessions
-      sessions = @project.sessions
+      sessions = @sessions = @project.sessions
       report_date = @report_date
 
       if sessions.any?
-        sessions_by_date = sessions.group_by(&:start_date)
+        @sessions_by_date = sessions.group_by(&:start_date)
 
         if report_date
-          if sessions_by_date[report_date]
-            @reports_by_date[report_date] = ProjectDateReport.new( @project, sessions_by_date[report_date], report_date )
+          if @sessions_by_date[report_date]
+            @reports_by_date[report_date] = ProjectDateReport.new( @project, @sessions_by_date[report_date], report_date )
             @cumulative_time = @reports_by_date[report_date].cumulative_time
           end
           return
         end
 
-        sessions_by_date.keys.sort.each do |date|
+        @sessions_by_date.keys.sort.each do |date|
           sessions = sessions_by_date[date].sort
           @reports_by_date[date] = ProjectDateReport.new( @project, date, sessions )
         end
       end
-
       @cumulative_time = @reports_by_date.values.inject(0){|sum,n| sum = sum+n.cumulative_time}
-
     end
 
   end
 
   class Report
-    attr :cumulative_time, :project_reports, :projects
+    attr :cumulative_time, :project_reports, :projects, :reports_by_project
     def initialize( projects, report_date= nil )
       @projects = projects
       project_reports = @projects.map{|p| ProjectReport.new(p, report_date)}
       @cumulative_time = project_reports.inject(0){|sum,n| sum = sum+n.cumulative_time}
       @project_reports = project_reports
+      @reports_by_project = HashObj.new({})
+      @project_reports.each do |pr|
+        @reports_by_project[pr.project] = pr
+      end
     end
   end
 
@@ -104,12 +107,56 @@ module BabyBro
       @longest_project_name = @projects.inject(0){|max,p| p.name.size>max ? p.name.size : max}
       @total_time = 0
       @projects.sort_by{|p| p.last_activity}.each do |project|
-        @total_time += print_project_report( project, @date )
+        if @config.test
+          test_project_report( @report.reports_by_project[project], @date )
+        else
+          @total_time += print_project_report( project, @date )
+        end
       end
       puts "\n--------------------------------------------------------------------------------"
       puts "Total Time: #{Session.duration_in_english(@total_time)}"
       puts "Total Time: #{Session.duration_in_english(@report.cumulative_time)}"
       puts
+    end
+
+    def test_project_report( project_report, report_date=nil )
+      project = project_report.project
+      sessions = project_report.sessions
+      return if @brief && sessions.empty?
+
+      if @brief && report_date
+        $stdout.print "  #{project.name}#{" "*(@longest_project_name - project.name.size)}  :"
+      else
+        $stdout.puts
+        $stdout.puts "#{project.name}"
+        $stdout.puts "="*project.name.size
+      end
+
+      if sessions.any?
+        sessions_by_date = project_report.sessions_by_date
+        has_sessions_for_date = false
+        sessions_by_date.keys.sort.each do |date|
+          next if report_date && date != report_date
+          sessions = sessions_by_date[date].sort
+          $stdout.puts "  #{date.strftime("%Y-%m-%d")}" unless @brief && report_date
+          sessions.each do |session|
+            $stdout.puts "      #{session.start_time.strftime("%I:%M %p")} - #{session.duration_in_english}" unless @brief
+          end
+          has_sessions_for_date = true
+          $stdout.print "    Total:" unless @brief && report_date
+          sessions_time = project_report.reports_by_date[date].cumulative_time
+          $stdout.puts "  #{Session.duration_in_english(sessions_time)}"
+          $stdout.puts
+        end
+        unless has_sessions_for_date
+          puts "   no activity" if @brief
+          puts
+        end
+        $stdout.puts "  Project Total: #{Session.duration_in_english(project_report.cumulative_time)}" unless @brief
+      else
+        $stdout.puts "  No sessions for this project."
+      end
+
     end
 
     private
