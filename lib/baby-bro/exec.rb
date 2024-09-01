@@ -206,7 +206,8 @@ MESSAGE
           monitor.status
         when 'restart'
           monitor = ::BabyBro::Monitor.new( @options )
-          monitor.stop && monitor.start
+          monitor.stop
+          monitor.start
         when 'report'
           reporter = ::BabyBro::Reporter.new( @options, args )
           reporter.run
