@@ -37,7 +37,7 @@ module BabyBro
         # In parent
         Process.detach(pid)
         create_pid_file( pid )
-        puts "Baby Bro monitor started."
+        puts "Baby Bro monitor started. PID: #{pid}"
       end
       return true
     end
@@ -92,10 +92,11 @@ module BabyBro
 
     private
       def main
+        puts "Baby Bro monitor starting..."
         while( @continue )
           load_config( @config ) if base_config_changed
           self.projects.each do |project|
-            # tron "Polling #{project.name}: #{project.directory}"
+            tron "Polling #{project.name}: #{project.directory}"
             project.log_activity
           end
           interruptable_sleep( @polling_interval ) do; @continue; end

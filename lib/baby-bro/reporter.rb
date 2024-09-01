@@ -139,7 +139,7 @@ module BabyBro
           has_sessions_for_date = false
           reports_by_date.keys.sort.each do |date|
             next if report_date && date != report_date
-            sessions = reports_by_date[date].sessions.sort
+            sessions = reports_by_date[date].sessions.sort_by(&:start_time)
             $stdout.puts "  #{date.strftime("%Y-%m-%d")}" unless @brief && report_date
             sessions.each do |session|
               $stdout.puts "      #{session.start_time.strftime("%I:%M %p")} - #{session.end_time.strftime("%I:%M %p")}  ~ #{session.duration_in_english}" unless @brief
