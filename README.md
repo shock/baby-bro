@@ -111,6 +111,19 @@ That's it.  You can add as many projects to your config as you like.  They will 
 - Add some tests.
 - Enable git branch detection and session association
 - Enable growl warning option when idle interval is about to be exceeded for a project.
+- If one projecy's ddir is a subdirectory of another project's directory, the other project should ignore the first project's activity.
+- Feature to list files in a project's directory that have mtime during a specific session.
+- Create config file terminal UI to
+  - add / remove projects
+  - change project directories
+  - change project names
+  - change monitor intervals
+  - change idle intervals
+  - change reporting intervals
+- Add a command to list all projects and their directories
+- Add a command to add the current directory as a project ~ use the current directory name as a hint for the project name
+  - Could use AI to suggest a project name based on the current directory name and README file if present.
+- Create a browser UI for configuration and reporting
 
 ## CONTRIBUTING:
 
