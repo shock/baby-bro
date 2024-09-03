@@ -5,6 +5,6 @@
 :idle_interval: 5 minutes
 :projects:
 - :name: Baby Bro
-  :directory: ~/src/capitalthought/baby-bro
+  :directory: ~/src/wdd/baby-bro
 - :name: Some Other Project
-  :directory: ~/src/capitalthought/sop
+  :directory: ~/src/wdd/sop

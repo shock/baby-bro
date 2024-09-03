@@ -97,7 +97,7 @@ module BabyBro
           load_config( @config ) if base_config_changed
           self.projects.each do |project|
             tron "Polling #{project.name}: #{project.directory}"
-            project.log_activity
+            project.log_activity()
           end
           interruptable_sleep( @polling_interval ) do; @continue; end
         end

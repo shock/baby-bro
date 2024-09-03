@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 #
 # HashObj
-# v 2.0.1
-# 08/31/2024
+# v 2.1.1
+# 09/03/2024
 #
 # Author: Bill Doughty
 #
@@ -12,7 +12,7 @@
 class HashObj < Hash
   def initialize(hash = nil)
     super()
-    deep_update(hash) if hash
+    deep_update(self.class.deep_copy(hash)) if hash
   end
 
   def [](key)
@@ -81,6 +81,11 @@ class HashObj < Hash
     end
   end
 
+  def self.deep_copy(hash)
+    hash.each_with_object({}) do |(key, value), new_hash|
+      new_hash[key] = value.is_a?(Hash) ? deep_copy(value) : value.dup rescue value
+    end
+  end
 end
 
 if $PROGRAM_NAME == __FILE__
@@ -110,5 +115,9 @@ if $PROGRAM_NAME == __FILE__
   obj.one = 1
   raise 'failure' unless obj['one'] == 1
   raise 'failure' unless obj[:one] == 1
+  h1 = {test: 1, test2: 2}
+  h2 = {h1: [h1]}
+  obj = HashObj.new(h2)
+  raise "It shouldn't be a HashObj" if h2[:h1][0].is_a?(HashObj)
   puts "All tests passed"
 end

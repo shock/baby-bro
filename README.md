@@ -124,6 +124,9 @@ That's it.  You can add as many projects to your config as you like.  They will 
 - Add a command to add the current directory as a project ~ use the current directory name as a hint for the project name
   - Could use AI to suggest a project name based on the current directory name and README file if present.
 - Create a browser UI for configuration and reporting
+- Move script/bbrc.rb to lib/baby-bro/configurator.rb and make it loadable and executable using an exec command.
+  - Validate config in configurator before saving
+  - on project rename, update the data directory name
 
 ## CONTRIBUTING:
 
