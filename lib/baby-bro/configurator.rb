@@ -112,6 +112,7 @@ module BabyBro
         end
         @raw_config[:projects] << { name: project_name, directory: project_directory }
         save_config()
+        puts "Project '#{project_name}' added."
       end
     end
 
@@ -178,7 +179,8 @@ module BabyBro
     end
 
     def list_projects()
-      puts "\n"
+      puts "\nConfiguration:\n\n"
+      print_polling_config()
       longest_name_length = @raw_config[:projects].map { |project| project[:name].length }.max
       puts "  #{"PROJECT".ljust(longest_name_length)}  #{"DIRECTORY"}"
       puts
@@ -188,12 +190,24 @@ module BabyBro
       puts "\n"
     end
 
+    def polling_config()
+      puts "\nPolling Configuration:\n\n"
+      print_polling_config()
+      polling_interval = prompt_ask("Polling interval", value: @raw_config[:monitor][:polling_interval])
+      idle_interval = prompt_ask("Idle interval", value: @raw_config[:monitor][:idle_interval])
+      @raw_config[:monitor][:polling_interval] = polling_interval
+      @raw_config[:monitor][:idle_interval] = idle_interval
+      save_config()
+      puts "Polling configuration updated.\n\n"
+    end
+
     def menu_options
       [
-        { command: 'list', description: 'List projects' },
+        { command: 'list', description: 'List configuration and projects' },
         { command: 'add', description: 'Add new project' },
         { command: 'remove', description: 'Remove a project' },
         { command: 'update', description: 'Update a project' },
+        { command: 'polling', description: 'Polling configuration' },
         { command: 'help', description: 'Show this help message' },
         { command: 'exit', description: 'Exit' }
       ]
@@ -207,7 +221,7 @@ module BabyBro
     end
 
     def get_menu_choice()
-      valid_choices = menu_options.map { |option| option[:command][0] }
+      valid_choices = menu_options.map { |option| option[:command][0] }.append('q') # Add 'q' for quit
       choice = ""
       while choice == ""
         choice = @prompt.ask(">>") || ""
@@ -221,6 +235,12 @@ module BabyBro
       return choice
     end
 
+    def print_polling_config()
+      polling_interval = @base_config.monitor.polling_interval
+      idle_interval = @base_config.monitor.idle_interval
+      puts "  Polling interval: #{polling_interval}\n"
+      puts "  Idle interval: #{idle_interval}\n\n"
+    end
 
     def run()
       if @base_config.add
@@ -240,9 +260,11 @@ module BabyBro
             update_project()
           when 'l'
             list_projects()
+          when 'p'
+            polling_config()
           when 'h'
             puts help_message()
-          when 'e'
+          when 'e', 'q'
             break
           else
             puts "Invalid option. Please try again."
