@@ -82,6 +82,7 @@ Command is one of the following:
   status - prints the status of the monitor process
   restart - restarts the monitor process (forces re-reading of config file)
   report - prints out time tracking reports
+  config - runs the configurator
 
 date_string is an optional argument for the report command and can be a
 qualified date string, 'today', 'yesterday' or a number representing an
@@ -211,6 +212,9 @@ MESSAGE
         when 'report'
           reporter = ::BabyBro::Reporter.new( @options, args )
           reporter.run
+        when 'config'
+          configurator = ::BabyBro::Configurator.new( @options, args )
+          configurator.run
         else
           puts "Unknown command: #{command}.  Try --help."
         end
