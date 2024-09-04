@@ -11,7 +11,7 @@ module BabyBro
   class Configurator
     include BaseConfig
 
-    def initialize( options, args )
+    def initialize( options )
       @base_config = HashObj.new( process_base_config( options ) )
       # Initialize TTY::Prompt instance
       @prompt = TTY::Prompt.new
@@ -19,6 +19,7 @@ module BabyBro
 
       # Load the configuration file
       @raw_config = YAML.load_file(@config_file) rescue default_config()
+      @raw_config[:data][:directory] = @raw_config[:data][:directory].gsub('~', ENV['HOME'])
       @raw_config[:projects].map! do |project|
         project[:directory] = project[:directory].gsub('~', ENV['HOME'])
         project
@@ -33,7 +34,7 @@ module BabyBro
 
     def default_config()
       {
-        :data_directory => "~/.babybro",
+        :data_directory => "#{ENV["HOME"]}/.babybro",
         :polling_interval => "1 minute",
         :idle_interval => "15 minutes",
         :projects => [
@@ -86,13 +87,29 @@ module BabyBro
       @prompt.select("#{message}?", **options)
     end
 
-    def add_new_project()
+    def add_new_project(opts={})
+      auto_confirm = opts[:auto_confirm]
       begin
         cwd = Dir.pwd
         directory_name = File.basename(Dir.pwd)
         project_name = create_project_name(directory_name)
-        project_name = prompt_ask("Project name", value: project_name)
-        project_directory = prompt_ask("Project directory", value: cwd)
+        project_name = prompt_ask("Project name", value: project_name) unless auto_confirm
+        projects = @raw_config[:projects].dup
+        # Check if project name is already in use
+        if projects.any?{|p| p[:name] == project_name}
+          puts "Project name '#{project_name}' already in use.  Aborting."
+          puts "Run `bro config` to inspect." if auto_confirm
+          return
+        end
+        project_directory = cwd
+        project_directory = prompt_ask("Project directory", value: project_directory) unless auto_confirm
+        # Check if project directory is already in use
+        p = projects.select{|p| p[:directory] == project_directory}
+        if p.any?
+          puts "Project directory already being monitored by project '#{p.first[:name]}'.  Aborting."
+          puts "Run `bro config` to inspect." if auto_confirm
+          return
+        end
         @raw_config[:projects] << { name: project_name, directory: project_directory }
         save_config()
       end
@@ -205,7 +222,11 @@ module BabyBro
     end
 
 
-    def run
+    def run()
+      if @base_config.add
+        add_new_project(auto_confirm: true)
+        return
+      end
       puts "\nWelcome to Baby Bro Configurator!\nconfig file: #{@config_file}\n(h for help)\n\n"
       loop do
         choice = get_menu_choice()

@@ -42,6 +42,9 @@ module BabyBroExec
         process_result
 
         @options
+      rescue OptionParser::InvalidOption => e
+        puts "Invalid option."
+        puts @opts.help
       end
 
       # @return [String] A description of the executable
@@ -115,6 +118,10 @@ END
 
         opts.on('-t', '--test', :NONE, "Test mode.  Not for production use.") do
           @options[:test] = true
+        end
+
+        opts.on('-a', '--add', :NONE, "Add a new project using the current directory as the project directory and return. (config only) ") do
+          @options[:add] = true
         end
 
         opts.on_tail("-?", "-h", "--help", "Show this message") do
@@ -213,8 +220,8 @@ MESSAGE
           reporter = ::BabyBro::Reporter.new( @options, args )
           reporter.run
         when 'config'
-          configurator = ::BabyBro::Configurator.new( @options, args )
-          configurator.run
+          configurator = ::BabyBro::Configurator.new( @options )
+          configurator.run()
         else
           puts "Unknown command: #{command}.  Try --help."
         end
