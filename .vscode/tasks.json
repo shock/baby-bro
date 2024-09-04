@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "ruby: debug current file",
+      "command": "rdbg",
+      "args": [
+        "--open",
+        "--port=12345",
+        "--",
+        "ruby",
+        "${file}"
+      ],
+      // "options": {
+      //   "externalTerminal": true
+      // },
+      "problemMatcher": []
+    }
+  ]
+}

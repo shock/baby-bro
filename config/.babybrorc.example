@@ -1,0 +1,10 @@
+# Baby Bro Config
+---
+:data_directory: /Users/billdoughty/.babybro
+:polling_interval: 1 minute
+:idle_interval: 5 minutes
+:projects:
+- :name: Baby Bro
+  :directory: /Users/billdoughty/src/wdd/baby-bro
+- :name: Some Other Project
+  :directory: /Users/billdoughty/src/wdd/sop

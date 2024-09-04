@@ -5,7 +5,7 @@ module BabyBro
     end
 
     def process_base_config( options )
-      @config_file = options[:config_file]
+      @config_file = File.expand_path(options[:config_file])
       config = YAML.load( File.open( @config_file ) )
       @last_config_update = file_timestamp( @config_file )
       @projects = config[:projects]

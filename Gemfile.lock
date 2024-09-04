@@ -1,13 +1,28 @@
-PATH
-  remote: .
-  specs:
-    baby-bro (0.0.16)
-
 GEM
   specs:
+    event_stream_parser (1.0.0)
+    faraday (2.11.0)
+      faraday-net_http (>= 2.0, < 3.4)
+      logger
+    faraday-multipart (1.0.4)
+      multipart-post (~> 2)
+    faraday-net_http (3.3.0)
+      net-http
+    logger (1.6.0)
+    multipart-post (2.4.1)
+    net-http (0.4.1)
+      uri
+    ruby-openai (7.1.0)
+      event_stream_parser (>= 0.3.0, < 2.0.0)
+      faraday (>= 1)
+      faraday-multipart (>= 1)
+    uri (0.13.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  baby-bro!
+  ruby-openai
+
+BUNDLED WITH
+   2.5.11
