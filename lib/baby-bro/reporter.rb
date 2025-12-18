@@ -93,7 +93,12 @@ module BabyBro
         @date = Date.today - 1
       elsif date_string
         begin
-          @date = Date.parse(date_string)
+          # First check if it's a simple number (for days ago)
+          if date_string.match(/^\d+$/)
+            @date = Date.today - date_string.to_i
+          else
+            @date = Date.parse(date_string)
+          end
         rescue
           @date = Date.today - date_string.to_i
         end
